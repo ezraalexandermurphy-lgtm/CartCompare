@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { stores, categories, exampleCarts } from "~/lib/data";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -17,10 +18,7 @@ function Home() {
             <span className="text-lg font-bold text-gray-900">CartCompare</span>
           </Link>
           <div className="flex items-center gap-4">
-            <Link
-              to="/cart"
-              className="btn-primary text-sm"
-            >
+            <Link to="/cart" className="btn-primary text-sm">
               Start Comparing
             </Link>
           </div>
@@ -30,7 +28,6 @@ function Home() {
       {/* Hero Section */}
       <main className="flex-1">
         <section className="relative overflow-hidden">
-          {/* Background decoration */}
           <div className="absolute inset-0 -z-10">
             <div className="absolute -top-40 right-0 h-[500px] w-[500px] rounded-full bg-emerald-100/40 blur-3xl" />
             <div className="absolute -bottom-40 left-0 h-[400px] w-[400px] rounded-full bg-green-100/30 blur-3xl" />
@@ -58,9 +55,8 @@ function Home() {
 
               <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-gray-600 sm:text-xl">
                 Tired of hopping between apps to find the best prices? Enter your
-                shopping list once and instantly compare prices across Walmart,
-                Kroger, Albertsons, and more. Know exactly where to shop — and
-                how much you'll save.
+                shopping list once and instantly compare prices across 8 major stores.
+                Know exactly where to shop — and how much you'll save.
               </p>
 
               <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
@@ -70,7 +66,11 @@ function Home() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
                 </Link>
-                <Link to="/results?items=milk,bread,eggs" className="btn-secondary px-8 py-3 text-base">
+                <Link
+                  to="/results"
+                  search={{ items: "milk,bread,eggs,chicken,bananas,apples" }}
+                  className="btn-secondary px-8 py-3 text-base"
+                >
                   See Example Results
                 </Link>
               </div>
@@ -94,7 +94,7 @@ function Home() {
                   step: "1",
                   title: "Add items",
                   description:
-                    "Type in your grocery list — milk, bread, eggs, anything. Add items one by one as you would on paper.",
+                    "Type in your grocery list — milk, bread, eggs, anything. Browse by category to find what you need.",
                   icon: (
                     <path
                       d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
@@ -106,7 +106,7 @@ function Home() {
                   step: "2",
                   title: "Compare prices",
                   description:
-                    "See every item's price across Walmart, Kroger, Albertsons, Target, and Publix in one clear table.",
+                    "See every item's price across Walmart, Kroger, Costco, and more in one clear table.",
                   icon: (
                     <path
                       d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
@@ -146,30 +146,79 @@ function Home() {
           </div>
         </section>
 
+        {/* Browse by Category */}
+        <section className="border-t border-gray-100 bg-white py-20">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6">
+            <h2 className="text-center text-3xl font-bold text-gray-900">
+              Browse by category
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-center text-lg text-gray-600">
+              See price comparisons for any category. Click to see which store is cheapest.
+            </p>
+
+            <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {categories.map((category) => {
+                const cartItems = exampleCarts[category];
+                if (!cartItems) return null;
+                const categoryIcons: Record<string, string> = {
+                  "Dairy": "🥛",
+                  "Bakery": "🍞",
+                  "Meat": "🥩",
+                  "Produce": "🥦",
+                  "Pantry": "🥫",
+                  "Beverages": "🧃",
+                  "Breakfast": "🥞",
+                  "Frozen Foods": "❄️",
+                  "Snacks": "🍿",
+                  "Household": "🧹",
+                  "Personal Care": "🧴",
+                };
+                return (
+                  <Link
+                    key={category}
+                    to="/results"
+                    search={{ items: cartItems }}
+                    className="card group flex items-center gap-4 transition-all hover:border-emerald-300 hover:shadow-md"
+                  >
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-xl group-hover:bg-emerald-100">
+                      {categoryIcons[category] || "🛒"}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900 group-hover:text-emerald-700">
+                        {category}
+                      </h3>
+                      <p className="text-xs text-gray-400">
+                        Compare prices →
+                      </p>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
         {/* Stores We Track */}
-        <section className="py-20">
+        <section className="border-t border-gray-100 bg-white/50 py-20">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <h2 className="text-center text-3xl font-bold text-gray-900">
               Stores we compare
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-center text-lg text-gray-600">
-              Real-time prices from your neighborhood's biggest grocers.
+              Realistic prices from your neighborhood's biggest grocers.
             </p>
 
             <div className="mt-12 flex flex-wrap items-center justify-center gap-6">
-              {[
-                { name: "Walmart", color: "bg-blue-600" },
-                { name: "Kroger", color: "bg-emerald-800" },
-                { name: "Albertsons", color: "bg-red-600" },
-                { name: "Target", color: "bg-red-700" },
-                { name: "Publix", color: "bg-green-700" },
-              ].map((store) => (
+              {stores.map((store) => (
                 <div
-                  key={store.name}
+                  key={store.id}
                   className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-5 py-3 shadow-sm"
                 >
-                  <span className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-bold text-white ${store.color}`}>
-                    {store.name[0]}
+                  <span
+                    className="flex h-10 w-10 items-center justify-center rounded-lg text-sm font-bold text-white"
+                    style={{ backgroundColor: store.color }}
+                  >
+                    {store.logo}
                   </span>
                   <span className="font-semibold text-gray-900">{store.name}</span>
                 </div>
