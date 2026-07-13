@@ -545,3 +545,365 @@ export const exampleCarts: Record<string, string> = {
   "Household": "bounty_paper_towels,charmin_toilet_paper,dawn_dish_soap,tide_laundry_detergent",
   "Personal Care": "pantene_shampoo,crest_toothpaste,softsoap_hand_soap",
 };
+
+// ── MEALS / RECIPES ─────────────────────────────────────────────────────────
+export interface MealIngredient {
+  productId: string;
+  name: string;
+  quantity: string;
+}
+
+export interface Meal {
+  id: string;
+  name: string;
+  category: "breakfast" | "lunch" | "dinner" | "snacks";
+  description: string;
+  prepTime: string;
+  servings: number;
+  ingredients: MealIngredient[];
+  // Optional branded product IDs for the "add missing items" feature
+  defaultBrandedProductIds: string[];
+}
+
+export const meals: Meal[] = [
+  {
+    id: "scrambled_eggs_toast", name: "Scrambled Eggs & Toast", category: "breakfast",
+    description: "Classic scrambled eggs with buttered toast. Quick and satisfying.",
+    prepTime: "10 min", servings: 2,
+    ingredients: [
+      { productId: "eggs", name: "Eggs", quantity: "4" },
+      { productId: "bread", name: "Bread", quantity: "2 slices" },
+      { productId: "butter", name: "Butter", quantity: "1 tbsp" },
+      { productId: "milk", name: "Milk", quantity: "2 tbsp" },
+    ],
+    defaultBrandedProductIds: ["store_eggs", "store_bread", "store_butter", "great_value_milk"],
+  },
+  {
+    id: "cereal_breakfast", name: "Cereal & Milk", category: "breakfast",
+    description: "Quick bowl of cereal with fresh milk. A breakfast classic.",
+    prepTime: "2 min", servings: 1,
+    ingredients: [
+      { productId: "cereal", name: "Cereal", quantity: "1 bowl" },
+      { productId: "milk", name: "Milk", quantity: "1 cup" },
+    ],
+    defaultBrandedProductIds: ["kellogg_cereal", "great_value_milk"],
+  },
+  {
+    id: "pancakes", name: "Buttermilk Pancakes", category: "breakfast",
+    description: "Fluffy pancakes with butter and maple syrup. Weekend favorite!",
+    prepTime: "20 min", servings: 4,
+    ingredients: [
+      { productId: "pancake_mix", name: "Pancake Mix", quantity: "2 cups" },
+      { productId: "milk", name: "Milk", quantity: "1 cup" },
+      { productId: "eggs", name: "Eggs", quantity: "1" },
+      { productId: "butter", name: "Butter", quantity: "2 tbsp" },
+    ],
+    defaultBrandedProductIds: ["bisquick_pancake_mix", "great_value_milk", "store_eggs", "store_butter"],
+  },
+  {
+    id: "bagel_cream_cheese", name: "Bagel with Cream Cheese", category: "breakfast",
+    description: "Toasted bagel spread with cream cheese. A New York classic.",
+    prepTime: "5 min", servings: 1,
+    ingredients: [
+      { productId: "bagels", name: "Bagels", quantity: "1" },
+      { productId: "cheese", name: "Cream Cheese", quantity: "2 tbsp" },
+    ],
+    defaultBrandedProductIds: ["thomas_bagels", "tillamook_cheese"],
+  },
+  {
+    id: "grilled_cheese", name: "Grilled Cheese Sandwich", category: "lunch",
+    description: "Crispy buttery grilled cheese with melted cheddar. Perfect comfort food.",
+    prepTime: "10 min", servings: 2,
+    ingredients: [
+      { productId: "bread", name: "Bread", quantity: "4 slices" },
+      { productId: "cheese", name: "Cheddar Cheese", quantity: "4 slices" },
+      { productId: "butter", name: "Butter", quantity: "2 tbsp" },
+    ],
+    defaultBrandedProductIds: ["wonder_bread", "tillamook_cheese", "landolakes_butter"],
+  },
+  {
+    id: "tuna_sandwich", name: "Tuna Salad Sandwich", category: "lunch",
+    description: "Classic tuna salad on fresh bread with lettuce.",
+    prepTime: "10 min", servings: 2,
+    ingredients: [
+      { productId: "canned_tuna", name: "Canned Tuna", quantity: "2 cans" },
+      { productId: "bread", name: "Bread", quantity: "4 slices" },
+      { productId: "eggs", name: "Hard Boiled Eggs", quantity: "1" },
+    ],
+    defaultBrandedProductIds: ["bumble_bee_canned_tuna", "wonder_bread", "store_eggs"],
+  },
+  {
+    id: "chicken_rice_bowl", name: "Chicken & Rice Bowl", category: "lunch",
+    description: "Simple seasoned chicken breast over white rice with veggies.",
+    prepTime: "25 min", servings: 2,
+    ingredients: [
+      { productId: "chicken", name: "Chicken Breast", quantity: "2 breasts" },
+      { productId: "rice", name: "White Rice", quantity: "1 cup" },
+      { productId: "frozen_veggies", name: "Frozen Vegetables", quantity: "1 cup" },
+      { productId: "olive_oil", name: "Olive Oil", quantity: "2 tbsp" },
+    ],
+    defaultBrandedProductIds: ["tyson_chicken", "minute_rice", "birds_eye_frozen_veggies", "bertolli_olive_oil"],
+  },
+  {
+    id: "spaghetti_meatballs", name: "Spaghetti with Meat Sauce", category: "dinner",
+    description: "Classic spaghetti with hearty tomato and meat sauce.",
+    prepTime: "30 min", servings: 4,
+    ingredients: [
+      { productId: "pasta", name: "Spaghetti", quantity: "1 lb" },
+      { productId: "tomato_sauce", name: "Tomato Sauce", quantity: "1 jar" },
+      { productId: "ground_beef", name: "Ground Beef", quantity: "1 lb" },
+      { productId: "olive_oil", name: "Olive Oil", quantity: "1 tbsp" },
+      { productId: "cheese", name: "Parmesan", quantity: "2 tbsp" },
+    ],
+    defaultBrandedProductIds: ["barrilla_pasta", "prego_tomato_sauce", "store_ground_beef", "bertolli_olive_oil", "tillamook_cheese"],
+  },
+  {
+    id: "chicken_nuggets_fries", name: "Chicken Nuggets & Veggies", category: "dinner",
+    description: "Easy oven-baked chicken nuggets with mixed vegetables.",
+    prepTime: "20 min", servings: 4,
+    ingredients: [
+      { productId: "chicken_nuggets", name: "Chicken Nuggets", quantity: "1 bag" },
+      { productId: "frozen_veggies", name: "Frozen Vegetables", quantity: "1 bag" },
+      { productId: "potato_chips", name: "Potato Chips", quantity: "1 bag" },
+    ],
+    defaultBrandedProductIds: ["store_chicken_nuggets", "birds_eye_frozen_veggies", "lays_potato_chips"],
+  },
+  {
+    id: "frozen_pizza_salad", name: "Frozen Pizza Night", category: "dinner",
+    description: "Easy frozen pizza with a side salad. Perfect busy weeknight dinner.",
+    prepTime: "20 min", servings: 2,
+    ingredients: [
+      { productId: "frozen_pizza", name: "Frozen Pizza", quantity: "1" },
+      { productId: "mixed_nuts", name: "Mixed Nuts", quantity: "1/2 cup" },
+      { productId: "soda", name: "Cola", quantity: "2 cans" },
+    ],
+    defaultBrandedProductIds: ["digiorno_frozen_pizza", "planter_mixed_nuts", "coke_soda"],
+  },
+  {
+    id: "nachos", name: "Loaded Nachos", category: "snacks",
+    description: "Crispy tortilla chips loaded with cheese and toppings.",
+    prepTime: "15 min", servings: 4,
+    ingredients: [
+      { productId: "potato_chips", name: "Tortilla Chips", quantity: "1 bag" },
+      { productId: "cheese", name: "Cheddar Cheese", quantity: "1 cup" },
+      { productId: "avocados", name: "Guacamole", quantity: "1" },
+    ],
+    defaultBrandedProductIds: ["lays_potato_chips", "tillamook_cheese", "store_avocados"],
+  },
+  {
+    id: "pbj", name: "Peanut Butter & Jelly", category: "lunch",
+    description: "Classic PB&J on fresh bread. The lunchtime staple.",
+    prepTime: "3 min", servings: 1,
+    ingredients: [
+      { productId: "bread", name: "Bread", quantity: "2 slices" },
+      { productId: "peanut_butter", name: "Peanut Butter", quantity: "2 tbsp" },
+      { productId: "strawberries", name: "Strawberry Jam", quantity: "1 tbsp" },
+    ],
+    defaultBrandedProductIds: ["wonder_bread", "jif_peanut_butter", "store_strawberries"],
+  },
+  {
+    id: "banana_smoothie", name: "Banana Smoothie", category: "breakfast",
+    description: "Creamy banana smoothie with yogurt and honey. Healthy start!",
+    prepTime: "5 min", servings: 2,
+    ingredients: [
+      { productId: "bananas", name: "Bananas", quantity: "2" },
+      { productId: "yogurt", name: "Greek Yogurt", quantity: "1 cup" },
+      { productId: "milk", name: "Milk", quantity: "1 cup" },
+    ],
+    defaultBrandedProductIds: ["store_bananas", "chobani_yogurt", "great_value_milk"],
+  },
+  {
+    id: "coffee_break", name: "Coffee & Snack Break", category: "snacks",
+    description: "Fresh brewed coffee with a sweet snack on the side.",
+    prepTime: "5 min", servings: 1,
+    ingredients: [
+      { productId: "coffee", name: "Ground Coffee", quantity: "2 tbsp" },
+      { productId: "milk", name: "Milk", quantity: "1/4 cup" },
+      { productId: "chocolate", name: "Chocolate Bar", quantity: "1" },
+      { productId: "sugar", name: "Sugar", quantity: "1 tsp" },
+    ],
+    defaultBrandedProductIds: ["folgers_coffee", "great_value_milk", "hershey_chocolate", "domino_sugar"],
+  },
+  {
+    id: "apple_peanut_butter", name: "Apple Slices & Peanut Butter", category: "snacks",
+    description: "Fresh apple slices with creamy peanut butter. Healthy snack.",
+    prepTime: "3 min", servings: 1,
+    ingredients: [
+      { productId: "apples", name: "Apple", quantity: "1" },
+      { productId: "peanut_butter", name: "Peanut Butter", quantity: "2 tbsp" },
+    ],
+    defaultBrandedProductIds: ["store_apples", "jif_peanut_butter"],
+  },
+  {
+    id: "strawberry_yogurt_parfait", name: "Strawberry Yogurt Parfait", category: "breakfast",
+    description: "Layers of yogurt, fresh strawberries, and granola.",
+    prepTime: "5 min", servings: 1,
+    ingredients: [
+      { productId: "yogurt", name: "Greek Yogurt", quantity: "1 cup" },
+      { productId: "strawberries", name: "Strawberries", quantity: "1/2 cup" },
+      { productId: "granola_bars", name: "Granola", quantity: "1/2 bar" },
+    ],
+    defaultBrandedProductIds: ["chobani_yogurt", "store_strawberries", "quaker_granola_bars"],
+  },
+  {
+    id: "mashed_potatoes", name: "Mashed Potatoes & Chicken", category: "dinner",
+    description: "Creamy mashed potatoes with seasoned chicken breast.",
+    prepTime: "35 min", servings: 4,
+    ingredients: [
+      { productId: "potatoes", name: "Potatoes", quantity: "2 lbs" },
+      { productId: "chicken", name: "Chicken Breast", quantity: "2 breasts" },
+      { productId: "butter", name: "Butter", quantity: "3 tbsp" },
+      { productId: "milk", name: "Milk", quantity: "1/2 cup" },
+    ],
+    defaultBrandedProductIds: ["store_potatoes", "tyson_chicken", "landolakes_butter", "great_value_milk"],
+  },
+  {
+    id: "tuna_melt", name: "Tuna Melt", category: "lunch",
+    description: "Open-faced tuna and cheese melt under the broiler.",
+    prepTime: "12 min", servings: 2,
+    ingredients: [
+      { productId: "canned_tuna", name: "Canned Tuna", quantity: "2 cans" },
+      { productId: "bread", name: "Bread", quantity: "2 slices" },
+      { productId: "cheese", name: "Cheddar Cheese", quantity: "2 slices" },
+    ],
+    defaultBrandedProductIds: ["bumble_bee_canned_tuna", "wonder_bread", "tillamook_cheese"],
+  },
+  {
+    id: "ice_cream_sundae", name: "Ice Cream Sundae", category: "snacks",
+    description: "Vanilla ice cream with chocolate syrup and nuts.",
+    prepTime: "3 min", servings: 1,
+    ingredients: [
+      { productId: "ice_cream", name: "Vanilla Ice Cream", quantity: "2 scoops" },
+      { productId: "chocolate", name: "Chocolate Syrup", quantity: "2 tbsp" },
+      { productId: "mixed_nuts", name: "Chopped Nuts", quantity: "1 tbsp" },
+    ],
+    defaultBrandedProductIds: ["breyers_ice_cream", "hershey_chocolate", "planter_mixed_nuts"],
+  },
+  {
+    id: "chicken_salad", name: "Chicken Salad", category: "lunch",
+    description: "Diced chicken salad with apples and nuts on a bed of greens.",
+    prepTime: "15 min", servings: 2,
+    ingredients: [
+      { productId: "chicken", name: "Chicken Breast", quantity: "2 breasts" },
+      { productId: "apples", name: "Apple", quantity: "1" },
+      { productId: "mixed_nuts", name: "Walnuts", quantity: "1/4 cup" },
+      { productId: "yogurt", name: "Greek Yogurt", quantity: "1/2 cup" },
+    ],
+    defaultBrandedProductIds: ["tyson_chicken", "store_apples", "planter_mixed_nuts", "chobani_yogurt"],
+  },
+  {
+    id: "rice_chicken_veggies", name: "Rice Bowl with Chicken & Avocado", category: "dinner",
+    description: "Healthy rice bowl topped with grilled chicken and fresh avocado.",
+    prepTime: "25 min", servings: 2,
+    ingredients: [
+      { productId: "rice", name: "White Rice", quantity: "1 cup" },
+      { productId: "chicken", name: "Chicken Breast", quantity: "2 breasts" },
+      { productId: "avocados", name: "Avocado", quantity: "1" },
+      { productId: "tomato_sauce", name: "Salsa", quantity: "1/4 cup" },
+    ],
+    defaultBrandedProductIds: ["minute_rice", "tyson_chicken", "store_avocados", "prego_tomato_sauce"],
+  },
+  {
+    id: "brunch_bagel", name: "Brunch Bagel Sandwich", category: "breakfast",
+    description: "Bagel sandwich with egg, cheese, and a side of OJ.",
+    prepTime: "10 min", servings: 1,
+    ingredients: [
+      { productId: "bagels", name: "Bagel", quantity: "1" },
+      { productId: "eggs", name: "Egg", quantity: "1" },
+      { productId: "cheese", name: "Cream Cheese", quantity: "2 tbsp" },
+      { productId: "orange_juice", name: "Orange Juice", quantity: "1 glass" },
+    ],
+    defaultBrandedProductIds: ["thomas_bagels", "store_eggs", "tillamook_cheese", "tropicana_orange_juice"],
+  },
+  {
+    id: "quick_pasta_butter", name: "Simple Butter Pasta", category: "dinner",
+    description: "Quick buttered pasta with parmesan. A 15-minute dinner.",
+    prepTime: "15 min", servings: 2,
+    ingredients: [
+      { productId: "pasta", name: "Spaghetti", quantity: "8 oz" },
+      { productId: "butter", name: "Butter", quantity: "3 tbsp" },
+      { productId: "cheese", name: "Parmesan", quantity: "2 tbsp" },
+    ],
+    defaultBrandedProductIds: ["barrilla_pasta", "landolakes_butter", "tillamook_cheese"],
+  },
+  {
+    id: "healthy_snack_box", name: "Healthy Snack Box", category: "snacks",
+    description: "Assorted snack box with nuts, fruit, and chocolate.",
+    prepTime: "3 min", servings: 1,
+    ingredients: [
+      { productId: "mixed_nuts", name: "Mixed Nuts", quantity: "1/4 cup" },
+      { productId: "apples", name: "Apple", quantity: "1" },
+      { productId: "chocolate", name: "Dark Chocolate", quantity: "1 square" },
+    ],
+    defaultBrandedProductIds: ["planter_mixed_nuts", "store_apples", "hershey_chocolate"],
+  },
+];
+
+export function getMealsByCategory(cat: string): Meal[] {
+  return meals.filter((m) => m.category === cat);
+}
+
+export interface MealMatch {
+  meal: Meal;
+  hasCount: number;
+  totalCount: number;
+  missingIngredients: MealIngredient[];
+  matchPercentage: number;
+}
+
+/**
+ * Given a list of cart items (which contain productIds), find meals
+ * that match well — i.e., the user already has most of the ingredients.
+ * Returns meals sorted by match percentage (highest first).
+ */
+export function findMatchingMeals(cartItems: CartItem[], minMatchPercent: number = 30): MealMatch[] {
+  const cartProductIds = new Set(cartItems.map((ci) => ci.productId));
+
+  const results: MealMatch[] = meals.map((meal) => {
+    const missingIngredients: MealIngredient[] = [];
+    let hasCount = 0;
+
+    for (const ingredient of meal.ingredients) {
+      if (cartProductIds.has(ingredient.productId)) {
+        hasCount++;
+      } else {
+        missingIngredients.push(ingredient);
+      }
+    }
+
+    const matchPercentage = Math.round((hasCount / meal.ingredients.length) * 100);
+
+    return {
+      meal,
+      hasCount,
+      totalCount: meal.ingredients.length,
+      missingIngredients,
+      matchPercentage,
+    };
+  });
+
+  return results
+    .filter((r) => r.matchPercentage >= minMatchPercent)
+    .sort((a, b) => b.matchPercentage - a.matchPercentage);
+}
+
+/**
+ * Get the default branded product IDs for missing ingredients,
+ * so we can add them to the cart.
+ */
+export function getMissingBrandedIds(missingIngredients: MealIngredient[]): string[] {
+  const ids: string[] = [];
+  for (const ing of missingIngredients) {
+    // Find the meal that references this ingredient
+    const meal = meals.find((m) =>
+      m.ingredients.some((i) => i.productId === ing.productId)
+    );
+    if (meal) {
+      const defaultBp = meal.defaultBrandedProductIds.find((bpId) =>
+        bpId.endsWith(`_${ing.productId}`)
+      );
+      if (defaultBp) ids.push(defaultBp);
+    }
+  }
+  return ids;
+}

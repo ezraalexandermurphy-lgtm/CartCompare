@@ -1,4 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
 import { AdSlot } from "~/lib/ad-slot";
 import {
   calculateStoreTotals,
@@ -6,8 +7,10 @@ import {
   getBrand,
   getProduct,
   getStoreCartUrl,
+  findMatchingMeals,
   type CartItem as DataCartItem,
   type StoreTotal,
+  type MealMatch,
 } from "~/lib/data";
 
 export const Route = createFileRoute("/results")({
@@ -19,6 +22,9 @@ export const Route = createFileRoute("/results")({
 
 function ResultsPage() {
   const { items } = Route.useSearch();
+  const navigate = useNavigate();
+  const [receiptStore, setReceiptStore] = useState<string | null>(null);
+  const [mealCategory, setMealCategory] = useState<string>("all");
 
   const cartItems: DataCartItem[] = items
     ? items.split(",").filter(Boolean).map((id) => {
@@ -127,6 +133,15 @@ function ResultsPage() {
                             </svg>
                             Shop at {storeTotal.store.name}
                           </a>
+                          <button
+                            onClick={() => setReceiptStore(receiptStore === storeTotal.store.id ? null : storeTotal.store.id)}
+                            className="mt-1 inline-flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700 hover:underline"
+                          >
+                            <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                            </svg>
+                            {receiptStore === storeTotal.store.id ? "Hide Receipt" : "View Receipt"}
+                          </button>
                         </div>
                       </div>
                       <div className="text-right">
@@ -215,6 +230,52 @@ function ResultsPage() {
                         </tbody>
                       </table>
                     </div>
+
+                    {/* Receipt View */}
+                    {receiptStore === storeTotal.store.id && (
+                      <div className="mt-4 border-t border-gray-200 pt-4">
+                        <div className="mx-auto max-w-sm">
+                          <div className="rounded-lg border-2 border-gray-200 bg-white p-4 shadow-sm">
+                            <div className="border-b border-dashed border-gray-300 pb-3 text-center">
+                              <p className="text-lg font-bold text-gray-900">{storeTotal.store.name}</p>
+                              <p className="text-xs text-gray-400">Grocery Receipt</p>
+                            </div>
+                            <div className="py-3 space-y-2">
+                              {storeTotal.items.map((item) => (
+                                <div key={item.brandedProduct.id} className="flex items-center justify-between text-sm">
+                                  <div className="min-w-0 flex-1">
+                                    <p className="truncate font-medium text-gray-900">{item.brandedProduct.name}</p>
+                                    {item.brand && (
+                                      <p className={`text-[10px] ${
+                                        item.brand.tier === "premium" ? "text-amber-600" :
+                                        item.brand.tier === "budget" ? "text-blue-600" :
+                                        item.brand.tier === "store" ? "text-gray-500" : "text-emerald-600"
+                                      }`}>{item.brand.name}</p>
+                                    )}
+                                  </div>
+                                  <p className="shrink-0 font-semibold tabular-nums text-gray-900 ml-4">${item.price.toFixed(2)}</p>
+                                </div>
+                              ))}
+                            </div>
+                            <div className="border-t border-dashed border-gray-300 pt-3">
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-semibold text-gray-600">Total</span>
+                                <span className="text-lg font-bold text-gray-900">${storeTotal.total.toFixed(2)}</span>
+                              </div>
+                              {(() => {
+                                const avg = storeTotal.items.reduce((s, i) => s + i.price, 0) / Math.max(storeTotal.items.length, 1);
+                                return (
+                                  <p className="mt-1 text-xs text-gray-400 text-right">Avg item: ${avg.toFixed(2)}</p>
+                                );
+                              })()}
+                            </div>
+                            <div className="mt-3 border-t border-dashed border-gray-300 pt-3 text-center">
+                              <p className="text-[10px] text-gray-400">Thank you for comparing with CartCompare!</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -256,6 +317,146 @@ function ResultsPage() {
               </div>
             </aside>
           </div>
+
+          {/* ── MEAL SUGGESTIONS ── */}
+          {cartItems.length > 0 && (() => {
+            const mealMatches = findMatchingMeals(cartItems);
+            const filteredMatches = mealCategory === "all"
+              ? mealMatches
+              : mealMatches.filter((m) => m.meal.category === mealCategory)
+
+            return (
+              <div className="mt-16">
+                <div className="text-center">
+                  <h2 className="text-2xl font-bold text-gray-900">🍳 Meals You Can Make</h2>
+                  <p className="mt-2 text-gray-600">
+                    Based on your cart items, here are meals you can prepare.
+                  </p>
+                </div>
+
+                {/* Category filters */}
+                <div className="mt-6 flex flex-wrap justify-center gap-2">
+                  {["all", "breakfast", "lunch", "dinner", "snacks"].map((cat) => {
+                    const count = cat === "all" ? mealMatches.length : mealMatches.filter((m) => m.meal.category === cat).length;
+                    return (
+                      <button
+                        key={cat}
+                        onClick={() => setMealCategory(cat)}
+                        className={`rounded-full border px-3 py-1.5 text-sm transition-all ${
+                          mealCategory === cat
+                            ? "border-emerald-500 bg-emerald-50 text-emerald-700 font-medium"
+                            : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                        }`}
+                      >
+                        {cat === "all" ? "All" : cat.charAt(0).toUpperCase() + cat.slice(1)}
+                        <span className="ml-1 text-xs text-gray-400">({count})</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {mealMatches.length === 0 ? (
+                  <div className="mt-8 text-center text-gray-400">
+                    <p>Add more items to see meal suggestions!</p>
+                  </div>
+                ) : (
+                  <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {filteredMatches.map((match) => {
+                      const progressWidth = `${Math.min(match.matchPercentage, 100)}%`;
+                      return (
+                        <div key={match.meal.id} className="card relative overflow-hidden">
+                          {/* Progress bar */}
+                          <div className="absolute top-0 left-0 h-1 bg-gray-100 w-full">
+                            <div
+                              className={`h-full transition-all ${
+                                match.matchPercentage >= 100 ? "bg-emerald-500" :
+                                match.matchPercentage >= 66 ? "bg-emerald-400" :
+                                match.matchPercentage >= 33 ? "bg-amber-400" : "bg-gray-300"
+                              }`}
+                              style={{ width: progressWidth }}
+                            />
+                          </div>
+
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <h3 className="font-semibold text-gray-900">{match.meal.name}</h3>
+                              <div className="mt-1 flex flex-wrap items-center gap-2">
+                                <span className={`text-xs rounded-full px-2 py-0.5 font-medium ${
+                                  match.meal.category === "breakfast" ? "bg-amber-50 text-amber-700" :
+                                  match.meal.category === "lunch" ? "bg-blue-50 text-blue-700" :
+                                  match.meal.category === "dinner" ? "bg-purple-50 text-purple-700" :
+                                  "bg-green-50 text-green-700"
+                                }`}>
+                                  {match.meal.category}
+                                </span>
+                                <span className="text-xs text-gray-400">{match.meal.prepTime}</span>
+                                <span className="text-xs text-gray-400">{match.meal.servings} servings</span>
+                              </div>
+                            </div>
+                            <span className={`shrink-0 text-sm font-bold ${
+                              match.matchPercentage >= 100 ? "text-emerald-600" :
+                              match.matchPercentage >= 66 ? "text-emerald-500" : "text-amber-500"
+                            }`}>
+                              {match.matchPercentage}%
+                            </span>
+                          </div>
+
+                          <p className="mt-2 text-xs text-gray-500 line-clamp-2">{match.meal.description}</p>
+
+                          {/* Ingredients */}
+                          <div className="mt-3 space-y-1">
+                            {match.meal.ingredients.map((ing) => {
+                              const has = cartItems.some((ci) => ci.productId === ing.productId);
+                              return (
+                                <div key={ing.productId} className="flex items-center gap-2 text-xs">
+                                  {has ? (
+                                    <svg className="h-3.5 w-3.5 shrink-0 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                                      <path clipRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" fillRule="evenodd" />
+                                    </svg>
+                                  ) : (
+                                    <svg className="h-3.5 w-3.5 shrink-0 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                    </svg>
+                                  )}
+                                  <span className={has ? "text-gray-700" : "text-gray-400"}>
+                                    {ing.quantity} {ing.name}
+                                    {!has && <span className="text-amber-500 ml-1">(missing)</span>}
+                                  </span>
+                                </div>
+                              );
+                            })}
+                          </div>
+
+                          {/* Missing items button */}
+                          {match.missingIngredients.length > 0 && (
+                            <button
+                              onClick={() => {
+                                const current = items ? items.split(",") : [];
+                                const missing = match.meal.defaultBrandedProductIds.filter(
+                                  (bpId) => !current.includes(bpId)
+                                );
+                                const newItems = [...current, ...missing].join(",");
+                                navigate({ to: "/results", search: { items: newItems }, replace: true });
+                              }}
+                              className="mt-3 w-full rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-700 transition-all hover:bg-emerald-100"
+                            >
+                              + Add {match.missingIngredients.length} missing item{match.missingIngredients.length !== 1 && "s"}
+                            </button>
+                          )}
+
+                          {match.matchPercentage === 100 && (
+                            <div className="mt-3 rounded-lg bg-emerald-50 px-3 py-2 text-center text-xs font-medium text-emerald-700">
+                              ✓ You have all ingredients!
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           <div className="mt-12 text-center">
             <Link to="/cart" className="btn-secondary px-8 py-3">
