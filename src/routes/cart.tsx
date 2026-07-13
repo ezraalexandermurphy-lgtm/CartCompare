@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { products } from "~/lib/data";
+import { products, categories, getProductsByCategory } from "~/lib/data";
 
 export const Route = createFileRoute("/cart")({
   component: CartPage,
@@ -12,10 +12,20 @@ function CartPage() {
   const [inputValue, setInputValue] = useState("");
   const [suggestions, setSuggestions] = useState<typeof products>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   const availableProducts = products.filter(
     (p) => !items.some((i) => i.productId === p.id)
   );
+
+  const filteredByCategory = activeCategory
+    ? getProductsByCategory(activeCategory)
+    : [];
+
+  const categoryItemCount = categories.map((cat) => ({
+    name: cat,
+    count: products.filter((p) => p.category === cat).length,
+  }));
 
   function handleInputChange(value: string) {
     setInputValue(value);
@@ -57,6 +67,20 @@ function CartPage() {
     navigate({ to: "/results", search: { items: itemIds } });
   }
 
+  const categoryIcons: Record<string, string> = {
+    "Dairy": "🥛",
+    "Bakery": "🍞",
+    "Meat": "🥩",
+    "Produce": "🥦",
+    "Pantry": "🥫",
+    "Beverages": "🧃",
+    "Breakfast": "🥞",
+    "Frozen Foods": "❄️",
+    "Snacks": "🍿",
+    "Household": "🧹",
+    "Personal Care": "🧴",
+  };
+
   return (
     <div className="flex min-h-dvh flex-col">
       {/* Navigation */}
@@ -67,6 +91,9 @@ function CartPage() {
               C
             </span>
             <span className="text-lg font-bold text-gray-900">CartCompare</span>
+          </Link>
+          <Link to="/" className="text-sm text-gray-500 hover:text-gray-700 transition-colors">
+            Home
           </Link>
         </div>
       </nav>
@@ -96,7 +123,6 @@ function CartPage() {
                     if (suggestions.length > 0) setShowSuggestions(true);
                   }}
                   onBlur={() => {
-                    // Delay to allow click on suggestion
                     setTimeout(() => setShowSuggestions(false), 200);
                   }}
                   placeholder="Search items — e.g. milk, bread, eggs..."
@@ -142,9 +168,9 @@ function CartPage() {
                     onMouseDown={() => addItem(product.id, product.name)}
                     className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm hover:bg-emerald-50 first:rounded-t-lg last:rounded-b-lg"
                   >
-                    <span className="flex h-7 w-7 items-center justify-center rounded-md bg-gray-100 text-xs font-medium text-gray-500">
-                      {product.category[0]}
-                    </span>
+                    {categoryIcons[product.category] && (
+                      <span className="text-base">{categoryIcons[product.category]}</span>
+                    )}
                     <div>
                       <span className="font-medium text-gray-900">{product.name}</span>
                       <span className="ml-2 text-xs text-gray-400">{product.category}</span>
@@ -154,6 +180,78 @@ function CartPage() {
               </div>
             )}
           </div>
+
+          {/* Category Badges / Filters */}
+          <div className="mt-8">
+            <p className="mb-3 text-sm font-medium text-gray-500">Browse by category:</p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setActiveCategory(null)}
+                className={`rounded-full border px-3 py-1.5 text-sm transition-all ${
+                  activeCategory === null
+                    ? "border-emerald-500 bg-emerald-50 text-emerald-700 font-medium"
+                    : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                }`}
+              >
+                All
+              </button>
+              {categoryItemCount.map(({ name, count }) => (
+                <button
+                  key={name}
+                  onClick={() =>
+                    setActiveCategory(activeCategory === name ? null : name)
+                  }
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-all ${
+                    activeCategory === name
+                      ? "border-emerald-500 bg-emerald-50 text-emerald-700 font-medium"
+                      : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                  }`}
+                >
+                  {categoryIcons[name] && <span>{categoryIcons[name]}</span>}
+                  <span>{name}</span>
+                  <span className="text-xs text-gray-400">({count})</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Category Product Grid */}
+          {activeCategory && filteredByCategory.length > 0 && (
+            <div className="mt-6 rounded-xl border border-gray-200 bg-white p-4">
+              <div className="mb-3 flex items-center justify-between">
+                <span className="text-sm font-semibold text-gray-700">
+                  {categoryIcons[activeCategory]} {activeCategory}
+                </span>
+                <span className="text-xs text-gray-400">
+                  Click to add
+                </span>
+              </div>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {filteredByCategory.map((product) => {
+                  const isAdded = items.some((i) => i.productId === product.id);
+                  return (
+                    <button
+                      key={product.id}
+                      onClick={() => {
+                        if (!isAdded) addItem(product.id, product.name);
+                      }}
+                      disabled={isAdded}
+                      className={`flex items-center justify-between rounded-lg border px-3 py-2.5 text-left text-sm transition-all ${
+                        isAdded
+                          ? "border-emerald-200 bg-emerald-50 text-emerald-500 cursor-default"
+                          : "border-gray-100 hover:border-emerald-300 hover:bg-emerald-50 text-gray-700"
+                      }`}
+                    >
+                      <span>{product.name}</span>
+                      <span className="text-xs">
+                        {isAdded ? "✓ Added" : "+ Add"}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Cart Items */}
           <div className="mt-10">
@@ -166,7 +264,7 @@ function CartPage() {
                 </div>
                 <h3 className="mt-4 text-lg font-semibold text-gray-900">Your cart is empty</h3>
                 <p className="mt-2 text-sm text-gray-500">
-                  Start typing a grocery item above to add it to your list.
+                  Search for items above or browse by category to add to your list.
                 </p>
               </div>
             ) : (
@@ -184,49 +282,40 @@ function CartPage() {
                 </div>
 
                 <div className="space-y-2">
-                  {items.map((item) => (
-                    <div
-                      key={item.productId}
-                      className="card flex items-center justify-between gap-4 py-3"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-sm font-medium text-emerald-700">
-                          {item.productName[0]}
-                        </span>
-                        <span className="font-medium text-gray-900">
-                          {item.productName}
-                        </span>
-                      </div>
-                      <button
-                        onClick={() => removeItem(item.productId)}
-                        className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
-                        title="Remove item"
+                  {items.map((item) => {
+                    const product = products.find((p) => p.id === item.productId);
+                    const cat = product?.category;
+                    return (
+                      <div
+                        key={item.productId}
+                        className="card flex items-center justify-between gap-4 py-3"
                       >
-                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Quick add popular items */}
-                {availableProducts.length > 0 && items.length < 6 && (
-                  <div className="mt-8">
-                    <p className="mb-3 text-sm font-medium text-gray-500">Quick add popular items:</p>
-                    <div className="flex flex-wrap gap-2">
-                      {availableProducts.slice(0, 8).map((p) => (
+                        <div className="flex items-center gap-3">
+                          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-sm">
+                            {cat && categoryIcons[cat] ? categoryIcons[cat] : item.productName[0]}
+                          </span>
+                          <div>
+                            <span className="font-medium text-gray-900">
+                              {item.productName}
+                            </span>
+                            {cat && (
+                              <span className="ml-2 text-xs text-gray-400">{cat}</span>
+                            )}
+                          </div>
+                        </div>
                         <button
-                          key={p.id}
-                          onClick={() => addItem(p.id, p.name)}
-                          className="rounded-full border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-600 transition-all hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700"
+                          onClick={() => removeItem(item.productId)}
+                          className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+                          title="Remove item"
                         >
-                          + {p.name}
+                          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
                         </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                      </div>
+                    );
+                  })}
+                </div>
               </>
             )}
           </div>
