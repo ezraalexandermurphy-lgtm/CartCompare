@@ -3,6 +3,7 @@ import { AdSlot } from "~/lib/ad-slot";
 import {
   calculateStoreTotals,
   getProduct,
+  getStoreCartUrl,
   type CartItem,
 } from "~/lib/data";
 
@@ -151,6 +152,17 @@ function ResultsPage() {
                           <p className="text-xs text-gray-400">
                             {storeTotal.itemCount} of {cartItems.length} items found
                           </p>
+                          <a
+                            href={getStoreCartUrl(storeTotal.store, cartItems)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-1 inline-flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 hover:underline"
+                          >
+                            <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                            Shop at {storeTotal.store.name}
+                          </a>
                         </div>
                       </div>
                       <div className="text-right">

@@ -3,6 +3,11 @@ export interface Store {
   name: string;
   color: string;
   logo: string;
+  tier: "discount" | "mid" | "premium" | "warehouse" | "specialty";
+  /** Base URL for the store's website */
+  baseUrl: string;
+  /** URL template for product search. Use {product} as placeholder for URL-encoded search term */
+  searchUrl: string;
 }
 
 export interface Product {
@@ -19,34 +24,52 @@ export interface Price {
 }
 
 export const categories = [
-  "Dairy",
-  "Bakery",
-  "Meat",
-  "Produce",
-  "Pantry",
-  "Beverages",
-  "Breakfast",
-  "Frozen Foods",
-  "Snacks",
-  "Household",
-  "Personal Care",
+  "Dairy", "Bakery", "Meat", "Produce", "Pantry",
+  "Beverages", "Breakfast", "Frozen Foods", "Snacks",
+  "Household", "Personal Care",
 ] as const;
 
 export type Category = (typeof categories)[number];
 
+// ── STORES ──────────────────────────────────────────────────────────────────
+// Organized by tier for realistic pricing patterns
 export const stores: Store[] = [
-  { id: "walmart", name: "Walmart", color: "#0071CE", logo: "W" },
-  { id: "kroger", name: "Kroger", color: "#004C3F", logo: "K" },
-  { id: "albertsons", name: "Albertsons", color: "#D12125", logo: "A" },
-  { id: "target", name: "Target", color: "#CC0000", logo: "T" },
-  { id: "publix", name: "Publix", color: "#00843D", logo: "P" },
-  { id: "costco", name: "Costco", color: "#005DAA", logo: "C" },
-  { id: "wholefoods", name: "Whole Foods", color: "#7B8D3A", logo: "WF" },
-  { id: "traderjoes", name: "Trader Joe's", color: "#BB2913", logo: "TJ" },
+  // Discount
+  { id: "walmart", name: "Walmart", color: "#0071CE", logo: "W", tier: "discount", baseUrl: "https://www.walmart.com", searchUrl: "https://www.walmart.com/search?q={product}" },
+  { id: "aldi", name: "Aldi", color: "#003E7E", logo: "A", tier: "discount", baseUrl: "https://www.aldi.us", searchUrl: "https://www.aldi.us/search/?q={product}" },
+  { id: "lidl", name: "Lidl", color: "#0050AA", logo: "L", tier: "discount", baseUrl: "https://www.lidl.com", searchUrl: "https://www.lidl.com/search?q={product}" },
+  { id: "winco", name: "WinCo", color: "#E31E24", logo: "W", tier: "discount", baseUrl: "https://www.wincofoods.com", searchUrl: "https://www.wincofoods.com/search?q={product}" },
+
+  // Mid-range national
+  { id: "kroger", name: "Kroger", color: "#004C3F", logo: "K", tier: "mid", baseUrl: "https://www.kroger.com", searchUrl: "https://www.kroger.com/search?query={product}" },
+  { id: "albertsons", name: "Albertsons", color: "#D12125", logo: "A", tier: "mid", baseUrl: "https://www.albertsons.com", searchUrl: "https://www.albertsons.com/shop/search-results.html?q={product}" },
+  { id: "safeway", name: "Safeway", color: "#C8102E", logo: "S", tier: "mid", baseUrl: "https://www.safeway.com", searchUrl: "https://www.safeway.com/shop/search-results.html?q={product}" },
+  { id: "publix", name: "Publix", color: "#00843D", logo: "P", tier: "mid", baseUrl: "https://www.publix.com", searchUrl: "https://www.publix.com/search?q={product}" },
+  { id: "target", name: "Target", color: "#CC0000", logo: "T", tier: "mid", baseUrl: "https://www.target.com", searchUrl: "https://www.target.com/s?searchTerm={product}" },
+
+  // Regional
+  { id: "heb", name: "H-E-B", color: "#DF0024", logo: "H", tier: "mid", baseUrl: "https://www.heb.com", searchUrl: "https://www.heb.com/search?q={product}" },
+  { id: "wegmans", name: "Wegmans", color: "#003DA5", logo: "W", tier: "mid", baseUrl: "https://www.wegmans.com", searchUrl: "https://www.wegmans.com/search/?text={product}" },
+  { id: "meijer", name: "Meijer", color: "#0072CE", logo: "M", tier: "mid", baseUrl: "https://www.meijer.com", searchUrl: "https://www.meijer.com/shopping/search.html?text={product}" },
+  { id: "giant", name: "Giant", color: "#EA6A20", logo: "G", tier: "mid", baseUrl: "https://giantfood.com", searchUrl: "https://giantfood.com/shop/search-results.html?q={product}" },
+  { id: "stopandshop", name: "Stop & Shop", color: "#E31E24", logo: "S", tier: "mid", baseUrl: "https://stopandshop.com", searchUrl: "https://stopandshop.com/shop/search-results.html?q={product}" },
+  { id: "foodlion", name: "Food Lion", color: "#F7A81B", logo: "F", tier: "mid", baseUrl: "https://www.foodlion.com", searchUrl: "https://www.foodlion.com/search/?q={product}" },
+
+  // Premium
+  { id: "wholefoods", name: "Whole Foods", color: "#7B8D3A", logo: "WF", tier: "premium", baseUrl: "https://www.wholefoodsmarket.com", searchUrl: "https://www.wholefoodsmarket.com/search?text={product}" },
+  { id: "traderjoes", name: "Trader Joe's", color: "#BB2913", logo: "TJ", tier: "specialty", baseUrl: "https://www.traderjoes.com", searchUrl: "https://www.traderjoes.com/home/search?q={product}" },
+  { id: "sprouts", name: "Sprouts", color: "#6B8E23", logo: "S", tier: "specialty", baseUrl: "https://www.sprouts.com", searchUrl: "https://www.sprouts.com/search/?q={product}" },
+  { id: "naturalgrocers", name: "Natural Grocers", color: "#3D6B35", logo: "NG", tier: "specialty", baseUrl: "https://www.naturalgrocers.com", searchUrl: "https://www.naturalgrocers.com/search?q={product}" },
+
+  // Warehouse
+  { id: "costco", name: "Costco", color: "#005DAA", logo: "C", tier: "warehouse", baseUrl: "https://www.costco.com", searchUrl: "https://www.costco.com/CatalogSearch?keyword={product}" },
+  { id: "samsclub", name: "Sam's Club", color: "#007DB7", logo: "SC", tier: "warehouse", baseUrl: "https://www.samsclub.com", searchUrl: "https://www.samsclub.com/s/{product}" },
+  { id: "bjs", name: "BJ's", color: "#E31837", logo: "BJ", tier: "warehouse", baseUrl: "https://www.bjs.com", searchUrl: "https://www.bjs.com/search?keyword={product}" },
 ];
 
+// ── PRODUCTS ────────────────────────────────────────────────────────────────
 export const products: Product[] = [
-  // Dairy (4)
+  // Dairy (5)
   { id: "milk", name: "Milk (1 gal)", category: "Dairy", unit: "gal" },
   { id: "eggs", name: "Eggs (dozen)", category: "Dairy", unit: "dozen" },
   { id: "cheese", name: "Cheddar Cheese (8 oz)", category: "Dairy", unit: "block" },
@@ -113,8 +136,13 @@ export const products: Product[] = [
   { id: "hand_soap", name: "Hand Soap (10 oz)", category: "Personal Care", unit: "bottle" },
 ];
 
-// ---- PRICES ----
-// Helper to avoid repetition
+// ── PRICING ─────────────────────────────────────────────────────────────────
+// Realistic price multipliers by tier:
+// discount: 0.85-1.0x of base
+// mid: 1.0-1.15x
+// premium: 1.3-1.5x
+// warehouse: 0.75-0.9x (bulk pricing)
+// specialty: 1.1-1.3x
 
 type PriceMap = Record<string, number>;
 
@@ -126,22 +154,8 @@ function buildPrices(storeId: string, map: PriceMap): Price[] {
   }));
 }
 
-// All products grouped by category for readability
-const walmartPrices: PriceMap = {
-  milk: 3.28, eggs: 2.52, cheese: 2.48, butter: 3.48, yogurt: 4.78,
-  bread: 1.98, bagels: 3.48,
-  chicken: 3.97, ground_beef: 5.48,
-  bananas: 0.58, apples: 1.28, potatoes: 3.97, strawberries: 2.98, avocados: 3.47, onions: 2.48,
-  rice: 1.98, pasta: 0.98, tomato_sauce: 1.74, olive_oil: 5.98, canned_tuna: 1.12, sugar: 2.48, salt: 1.28, peanut_butter: 2.98,
-  cereal: 2.98, pancake_mix: 3.48,
-  orange_juice: 3.24, coffee: 5.98, soda: 5.98, water: 3.98,
-  frozen_pizza: 3.48, ice_cream: 4.48, frozen_veggies: 1.48, chicken_nuggets: 5.97,
-  potato_chips: 3.48, granola_bars: 3.98, mixed_nuts: 5.98, chocolate: 1.98,
-  paper_towels: 6.48, toilet_paper: 8.97, dish_soap: 2.98, laundry_detergent: 7.97,
-  shampoo: 3.97, toothpaste: 2.48, hand_soap: 2.48,
-};
-
-const krogerPrices: PriceMap = {
+// Base prices (mid-range reference)
+const base: PriceMap = {
   milk: 3.49, eggs: 2.79, cheese: 2.79, butter: 3.79, yogurt: 5.49,
   bread: 2.29, bagels: 3.99,
   chicken: 4.29, ground_beef: 5.99,
@@ -155,100 +169,89 @@ const krogerPrices: PriceMap = {
   shampoo: 4.49, toothpaste: 2.99, hand_soap: 2.99,
 };
 
-const albertsonsPrices: PriceMap = {
-  milk: 3.59, eggs: 2.99, cheese: 2.99, butter: 3.99, yogurt: 5.79,
-  bread: 2.49, bagels: 4.29,
-  chicken: 4.49, ground_beef: 6.29,
-  bananas: 0.79, apples: 1.69, potatoes: 4.99, strawberries: 3.79, avocados: 4.29, onions: 3.29,
-  rice: 2.49, pasta: 1.49, tomato_sauce: 2.29, olive_oil: 6.99, canned_tuna: 1.69, sugar: 2.99, salt: 1.69, peanut_butter: 3.49,
-  cereal: 3.49, pancake_mix: 4.29,
-  orange_juice: 3.79, coffee: 6.99, soda: 6.99, water: 4.79,
-  frozen_pizza: 4.29, ice_cream: 5.29, frozen_veggies: 1.99, chicken_nuggets: 6.99,
-  potato_chips: 4.29, granola_bars: 4.79, mixed_nuts: 6.99, chocolate: 2.49,
-  paper_towels: 7.99, toilet_paper: 10.49, dish_soap: 3.49, laundry_detergent: 8.99,
-  shampoo: 4.79, toothpaste: 3.29, hand_soap: 3.29,
-};
+function applyFactor(base: PriceMap, factor: number): PriceMap {
+  const out: PriceMap = {};
+  for (const [k, v] of Object.entries(base)) {
+    out[k] = Math.round(v * factor * 100) / 100;
+  }
+  return out;
+}
 
-const targetPrices: PriceMap = {
-  milk: 3.39, eggs: 2.69, cheese: 2.69, butter: 3.69, yogurt: 5.29,
-  bread: 1.99, bagels: 3.79,
-  chicken: 4.19, ground_beef: 5.79,
-  bananas: 0.65, apples: 1.39, potatoes: 4.29, strawberries: 3.29, avocados: 3.79, onions: 2.79,
-  rice: 2.09, pasta: 1.09, tomato_sauce: 1.89, olive_oil: 6.29, canned_tuna: 1.29, sugar: 2.69, salt: 1.39, peanut_butter: 3.19,
-  cereal: 3.09, pancake_mix: 3.79,
-  orange_juice: 3.29, coffee: 6.29, soda: 6.29, water: 4.29,
-  frozen_pizza: 3.79, ice_cream: 4.79, frozen_veggies: 1.69, chicken_nuggets: 6.29,
-  potato_chips: 3.79, granola_bars: 4.29, mixed_nuts: 6.29, chocolate: 2.19,
-  paper_towels: 6.99, toilet_paper: 9.49, dish_soap: 3.19, laundry_detergent: 8.29,
-  shampoo: 4.29, toothpaste: 2.79, hand_soap: 2.79,
-};
+// Walmart (discount, ~0.88x)
+const walmartPrices = applyFactor(base, 0.88);
+// Aldi (discount, ~0.85x)
+const aldiPrices = applyFactor(base, 0.85);
+// Lidl (discount, ~0.87x)
+const lidlPrices = applyFactor(base, 0.87);
+// WinCo (discount, ~0.82x)
+const wincoPrices = applyFactor(base, 0.82);
 
-const publixPrices: PriceMap = {
-  milk: 3.79, eggs: 3.29, cheese: 3.29, butter: 4.29, yogurt: 5.99,
-  bread: 2.69, bagels: 4.49,
-  chicken: 4.79, ground_beef: 6.79,
-  bananas: 0.89, apples: 1.89, potatoes: 5.49, strawberries: 3.99, avocados: 4.49, onions: 3.49,
-  rice: 2.69, pasta: 1.69, tomato_sauce: 2.49, olive_oil: 7.49, canned_tuna: 1.89, sugar: 3.29, salt: 1.89, peanut_butter: 3.79,
-  cereal: 3.79, pancake_mix: 4.49,
-  orange_juice: 3.99, coffee: 7.49, soda: 7.49, water: 4.99,
-  frozen_pizza: 4.49, ice_cream: 5.49, frozen_veggies: 2.29, chicken_nuggets: 7.49,
-  potato_chips: 4.49, granola_bars: 4.99, mixed_nuts: 7.49, chocolate: 2.69,
-  paper_towels: 8.49, toilet_paper: 10.99, dish_soap: 3.79, laundry_detergent: 9.49,
-  shampoo: 4.99, toothpaste: 3.49, hand_soap: 3.49,
-};
+// Kroger (mid, ~1.0x)
+const krogerPrices = { ...base };
+// Safeway (mid, ~1.05x)
+const safewayPrices = applyFactor(base, 1.05);
+// Albertsons (mid, ~1.03x)
+const albertsonsPrices = applyFactor(base, 1.03);
+// Publix (mid, ~1.08x)
+const publixPrices = applyFactor(base, 1.08);
+// Target (mid, ~0.95x)
+const targetPrices = applyFactor(base, 0.95);
 
-const costcoPrices: PriceMap = {
-  milk: 3.09, eggs: 2.29, cheese: 2.19, butter: 3.19, yogurt: 4.29,
-  bread: 1.79, bagels: 3.19,
-  chicken: 3.49, ground_beef: 4.99,
-  bananas: 0.55, apples: 1.19, potatoes: 3.49, strawberries: 2.79, avocados: 3.29, onions: 2.29,
-  rice: 1.69, pasta: 0.89, tomato_sauce: 1.59, olive_oil: 4.99, canned_tuna: 0.99, sugar: 2.19, salt: 1.09, peanut_butter: 2.79,
-  cereal: 2.69, pancake_mix: 3.19,
-  orange_juice: 2.99, coffee: 5.49, soda: 5.49, water: 3.49,
-  frozen_pizza: 2.99, ice_cream: 3.99, frozen_veggies: 1.29, chicken_nuggets: 5.49,
-  potato_chips: 3.19, granola_bars: 3.69, mixed_nuts: 5.49, chocolate: 1.79,
-  paper_towels: 5.99, toilet_paper: 7.99, dish_soap: 2.79, laundry_detergent: 6.99,
-  shampoo: 3.49, toothpaste: 2.19, hand_soap: 2.29,
-};
+// H-E-B (mid, strong regional, ~0.92x)
+const hebPrices = applyFactor(base, 0.92);
+// Wegmans (mid, ~1.02x)
+const wegmansPrices = applyFactor(base, 1.02);
+// Meijer (midwest, ~0.97x)
+const meijerPrices = applyFactor(base, 0.97);
+// Giant (mid-atlantic, ~1.03x)
+const giantPrices = applyFactor(base, 1.03);
+// Stop & Shop (NE, ~1.06x)
+const stopandshopPrices = applyFactor(base, 1.06);
+// Food Lion (mid-atlantic, ~0.95x)
+const foodlionPrices = applyFactor(base, 0.95);
 
-const wholefoodsPrices: PriceMap = {
-  milk: 4.29, eggs: 3.99, cheese: 3.99, butter: 4.99, yogurt: 6.49,
-  bread: 3.49, bagels: 4.99,
-  chicken: 5.49, ground_beef: 7.49,
-  bananas: 0.99, apples: 2.49, potatoes: 5.99, strawberries: 4.99, avocados: 4.99, onions: 3.99,
-  rice: 3.49, pasta: 2.49, tomato_sauce: 3.49, olive_oil: 8.99, canned_tuna: 2.49, sugar: 3.99, salt: 2.49, peanut_butter: 4.99,
-  cereal: 4.49, pancake_mix: 5.49,
-  orange_juice: 4.99, coffee: 9.99, soda: 8.49, water: 5.99,
-  frozen_pizza: 5.49, ice_cream: 6.49, frozen_veggies: 2.99, chicken_nuggets: 8.99,
-  potato_chips: 5.49, granola_bars: 5.99, mixed_nuts: 8.99, chocolate: 3.49,
-  paper_towels: 9.99, toilet_paper: 12.99, dish_soap: 4.99, laundry_detergent: 11.99,
-  shampoo: 6.99, toothpaste: 4.99, hand_soap: 4.49,
-};
+// Whole Foods (premium, ~1.35x)
+const wholefoodsPrices = applyFactor(base, 1.35);
+// Trader Joe's (specialty, ~0.95x surprisingly)
+const traderjoesPrices = applyFactor(base, 0.95);
+// Sprouts (specialty, ~1.15x)
+const sproutsPrices = applyFactor(base, 1.15);
+// Natural Grocers (specialty, ~1.2x)
+const naturalgrocersPrices = applyFactor(base, 1.2);
 
-const traderjoesPrices: PriceMap = {
-  milk: 3.49, eggs: 2.99, cheese: 2.79, butter: 3.69, yogurt: 4.99,
-  bread: 2.29, bagels: 3.49,
-  chicken: 4.49, ground_beef: 5.99,
-  bananas: 0.69, apples: 1.49, potatoes: 3.99, strawberries: 3.29, avocados: 3.69, onions: 2.79,
-  rice: 2.29, pasta: 1.29, tomato_sauce: 1.99, olive_oil: 5.99, canned_tuna: 1.49, sugar: 2.49, salt: 1.49, peanut_butter: 2.99,
-  cereal: 2.99, pancake_mix: 3.49,
-  orange_juice: 3.29, coffee: 5.99, soda: 5.99, water: 3.99,
-  frozen_pizza: 3.49, ice_cream: 4.29, frozen_veggies: 1.69, chicken_nuggets: 5.99,
-  potato_chips: 3.49, granola_bars: 3.99, mixed_nuts: 5.99, chocolate: 1.99,
-  paper_towels: 6.99, toilet_paper: 8.99, dish_soap: 2.99, laundry_detergent: 7.99,
-  shampoo: 3.99, toothpaste: 2.99, hand_soap: 2.99,
-};
+// Costco (warehouse, ~0.75x)
+const costcoPrices = applyFactor(base, 0.75);
+// Sam's Club (warehouse, ~0.78x)
+const samsclubPrices = applyFactor(base, 0.78);
+// BJ's (warehouse, ~0.8x)
+const bjsPrices = applyFactor(base, 0.8);
 
 export const prices: Price[] = [
   ...buildPrices("walmart", walmartPrices),
+  ...buildPrices("aldi", aldiPrices),
+  ...buildPrices("lidl", lidlPrices),
+  ...buildPrices("winco", wincoPrices),
   ...buildPrices("kroger", krogerPrices),
+  ...buildPrices("safeway", safewayPrices),
   ...buildPrices("albertsons", albertsonsPrices),
-  ...buildPrices("target", targetPrices),
   ...buildPrices("publix", publixPrices),
-  ...buildPrices("costco", costcoPrices),
+  ...buildPrices("target", targetPrices),
+  ...buildPrices("heb", hebPrices),
+  ...buildPrices("wegmans", wegmansPrices),
+  ...buildPrices("meijer", meijerPrices),
+  ...buildPrices("giant", giantPrices),
+  ...buildPrices("stopandshop", stopandshopPrices),
+  ...buildPrices("foodlion", foodlionPrices),
   ...buildPrices("wholefoods", wholefoodsPrices),
   ...buildPrices("traderjoes", traderjoesPrices),
+  ...buildPrices("sprouts", sproutsPrices),
+  ...buildPrices("naturalgrocers", naturalgrocersPrices),
+  ...buildPrices("costco", costcoPrices),
+  ...buildPrices("samsclub", samsclubPrices),
+  ...buildPrices("bjs", bjsPrices),
 ];
+
+// ── HELPERS ─────────────────────────────────────────────────────────────────
 
 export function getProduct(id: string): Product | undefined {
   return products.find((p) => p.id === id);
@@ -264,6 +267,29 @@ export function getPrice(storeId: string, productId: string): number | undefined
 
 export function getProductsByCategory(category: string): Product[] {
   return products.filter((p) => p.category === category);
+}
+
+/**
+ * Generate a URL that opens the store's website with a search for the given product.
+ * This is the best we can do without store-specific cart APIs — most grocers don't
+ * support direct "add to cart" via URL parameters.
+ */
+export function getStoreProductUrl(store: Store, productName: string): string {
+  const encoded = encodeURIComponent(productName);
+  return store.searchUrl.replace("{product}", encoded);
+}
+
+/**
+ * For a list of cart items, open the store's search page with the most
+ * expensive item as the search query (or join multiple items).
+ * Some stores support searching multiple terms.
+ */
+export function getStoreCartUrl(store: Store, items: { productName: string }[]): string {
+  if (items.length === 0) return store.baseUrl;
+  // Search for the first 3 most important items
+  const searchTerms = items.slice(0, 3).map((i) => i.productName).join(" ");
+  const encoded = encodeURIComponent(searchTerms);
+  return store.searchUrl.replace("{product}", encoded);
 }
 
 export interface CartItem {
